@@ -106,21 +106,23 @@ void loop() {
 
            int chk = DHT11.read(DHT11PIN); 
   client.print("Read sensor: "); 
+  /*
   switch (chk) 
   { 
-    case dht11::OK: 
+    case dht11::DHTLIB_OK: 
       client.println("OK"); 
       break; 
-    case dht11::ERROR_CHECKSUM: 
+    case dht11::DHTLIB_ERROR_CHECKSUM: 
       client.println("Checksum error"); 
       break; 
-    case dht11::ERROR_TIMEOUT: 
+    case dht11::DHTLIB_ERROR_TIMEOUT: 
       client.println("Time out error"); 
       break; 
     default: 
       client.println("Unknown error"); 
       break; 
-    } 
+    }
+    */ 
     client.print("Humidity (%): "); 
     client.println((float)DHT11.humidity, 2); 
     client.print("<br>Temperature (&deg;C): "); 
