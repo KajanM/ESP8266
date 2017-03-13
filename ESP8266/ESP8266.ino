@@ -7,6 +7,8 @@ char pass[] = "qw4hddqcrg";
 
 int status = WL_IDLE_STATUS;
 
+WiFiServer server(80);
+
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
@@ -39,7 +41,7 @@ double Fahrenheit(double celsius)
 
  
 void setup() {
-  WiFiServer server(80);
+  
 
   Serial.begin(9600); 
 
@@ -102,17 +104,17 @@ void loop() {
           client.println("<!DOCTYPE HTML>");
           client.println("<html>");
 
-           int chk = DHT11.read(); 
+           int chk = DHT11.read(DHT11PIN); 
   client.print("Read sensor: "); 
   switch (chk) 
   { 
-    case Dht11::OK: 
+    case dht11::OK: 
       client.println("OK"); 
       break; 
-    case Dht11::ERROR_CHECKSUM: 
+    case dht11::ERROR_CHECKSUM: 
       client.println("Checksum error"); 
       break; 
-    case Dht11::ERROR_TIMEOUT: 
+    case dht11::ERROR_TIMEOUT: 
       client.println("Time out error"); 
       break; 
     default: 
