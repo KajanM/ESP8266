@@ -1,10 +1,9 @@
-
-
+ 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
 char ssid[] = "Kalla Kundu";
-char pass[] = "*******";
+char pass[] = "qw4hddqcrg";
 
 int status = WL_IDLE_STATUS;
 
@@ -25,6 +24,18 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
+
+#include <dht11.h>
+
+dht11 DHT11;
+
+#define DHT11PIN 4
+//Dht11 dht11(DHT11PIN);
+
+double Fahrenheit(double celsius) 
+{ 
+  return 1.8 * celsius + 32; 
+}
 
  
 void setup() {
@@ -57,6 +68,101 @@ void setup() {
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  
 
+ char linebuf[255], getvalue[255], *lineptr;
+  int linecount;
+  
+  // listen for incoming clients
+  WiFiClient client = server.available();
+  if (client) {
+#ifdef sdebug
+    Serial.println("new client");
+#endif
+    // an http request ends with a blank line
+    boolean currentLineIsBlank = true;
+    lineptr = linebuf;
+    linecount = 0;
+    
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+#ifdef sdebug
+        Serial.write(c);
+#endif
+        // if you've gotten to the end of the line (received a newline
+        // character) and the line is blank, the http request has ended,
+        // so you can send a reply
+        if (c == '\n' && currentLineIsBlank) {
+          // send a standard http response header
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: text/html");
+          client.println("Connection: close");  // the connection will be closed after completion of the response
+          client.println();
+          client.println("<!DOCTYPE HTML>");
+          client.println("<html>");
+
+           int chk = DHT11.read(); 
+  client.print("Read sensor: "); 
+  switch (chk) 
+  { 
+    case Dht11::OK: 
+      client.println("OK"); 
+      break; 
+    case Dht11::ERROR_CHECKSUM: 
+      client.println("Checksum error"); 
+      break; 
+    case Dht11::ERROR_TIMEOUT: 
+      client.println("Time out error"); 
+      break; 
+    default: 
+      client.println("Unknown error"); 
+      break; 
+    } 
+    client.print("Humidity (%): "); 
+    client.println((float)DHT11.humidity, 2); 
+    client.print("<br>Temperature (&deg;C): "); 
+    client.println((float)DHT11.temperature, 2); 
+    client.print("<br>Temperature (&deg;F): "); 
+    client.println(Fahrenheit(DHT11.temperature), 2); 
+          
+          client.println("<br></html>");
+           break;
+        }
+        if (c == '\n') {
+          // you're starting a new line
+          currentLineIsBlank = true;
+          if (memcmp(linebuf, "GET ", 4) == 0)
+          {
+            strcpy(getvalue, &(linebuf[4]));
+#ifdef sdebug
+            Serial.print("GET buffer = ");
+            Serial.println(getvalue);
+#endif
+          }
+          lineptr = linebuf;
+          linecount = 0;
+        } 
+        else if (c != '\r') {
+          // you've gotten a character on the current line
+          currentLineIsBlank = false;
+          if (linecount < sizeof(linebuf))
+          {
+            *lineptr++ = c;
+            linecount++;
+          }
+        }
+      }
+    }
+    // give the web browser time to receive the data
+    delay(1);
+    
+    // close the connection:
+    client.stop();
+#ifdef sdebug
+    Serial.println("client disonnected");
+#endif
+  }
 }
+
+
