@@ -3,7 +3,7 @@
 #include <WiFiClient.h>
 
 char ssid[] = "Kalla Kundu";
-char pass[] = "qw4hddqcrg";
+char pass[] = "*******";
 
 int status = WL_IDLE_STATUS;
 
